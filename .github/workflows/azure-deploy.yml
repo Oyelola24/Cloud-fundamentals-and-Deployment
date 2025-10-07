@@ -1,0 +1,47 @@
+name: Build and deploy to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install server dependencies
+        working-directory: ./server
+        run: npm install
+
+      - name: Install client dependencies (if any)
+        working-directory: ./client
+        run: |
+          if [ -f package.json ]; then npm install; fi
+
+      - name: Build client (copy static files)
+        working-directory: ./client
+        run: npm run build
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: './server'
+
+      - name: Post-deploy check
+        run: echo "Deployment finished"
+
+# Notes:
+# - Add two repository secrets in GitHub: AZURE_WEBAPP_PUBLISH_PROFILE and AZURE_WEBAPP_NAME.
+#   * AZURE_WEBAPP_PUBLISH_PROFILE: the contents of the publish profile file from the Azure Portal (Download publish profile)
+#   * AZURE_WEBAPP_NAME: the name of your Azure Web App (for example: my-app-name)
