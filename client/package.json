@@ -1,0 +1,8 @@
+{
+  "name": "simple-static-client",
+  "version": "1.0.0",
+  "description": "Minimal static frontend for MERN Azure checkpoint",
+  "scripts": {
+    "build": "node build.js"
+  }
+}
